@@ -41,9 +41,7 @@ composer update
 
 ### Step 5: Default User
     The default user created (if using provided seeders):
-
-    Email: admin@gmail.com
-    Password: 12345678
+    
 
 ### Step 6: Symbolic Link for Storage
     Create a symbolic link for storage:
