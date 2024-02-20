@@ -45,9 +45,11 @@ class GetLowestOfferPrice extends Command
 
             // Get lowestPrice from provided response
             $lowestPrice = $this->extractLowestPrice($response->body());
+            $tenPercentLowerOfferPrice = round($offer->offer_price * 0.9, 2);
+            \Log::info('ten lowest: '.$tenPercentLowerOfferPrice);
 
             // if we get lowest price and it is less than offer price then we need to update our offer price accordingly
-            if ($lowestPrice && $lowestPrice > 0 && $lowestPrice < $offer->offer_price) {
+            if ($lowestPrice && $lowestPrice > 0 && $lowestPrice < $offer->offer_price && $lowestPrice > $tenPercentLowerOfferPrice) {
                 \Log::info('inside');
                 $this->updateLowestPriceToMetro($lowestPrice, $offer);
             }
@@ -97,8 +99,8 @@ class GetLowestOfferPrice extends Command
         // Get HMAC signature from config
         $hmacSignature = config('metro.signature');
 
-        // Calculate updated price (subtract 0.10 EUR)
-        $updatedPrice = $lowestPrice - 0.10;
+        // Calculate updated price (subtract 0.01 EUR)
+        $updatedPrice = $lowestPrice - 0.01;
 
         // Update offer JSON with the new price
         $updatedOfferJson = $this->updateOfferJson($offer->offer_json, $updatedPrice);
