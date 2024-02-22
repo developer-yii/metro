@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use App\Models\Offer;
+use App\Mail\OfferPriceChanged;
+use Illuminate\Support\Facades\Mail;
 use DOMDocument;
 
 class GetLowestOfferPrice extends Command
@@ -84,7 +86,7 @@ class GetLowestOfferPrice extends Command
                 \Log::info('not interested: ' . $offer->productKey);
             }
 
-            \Log::info('handle end');
+            \Log::info('handle end');        
         } // foreach end
     }
 
@@ -182,6 +184,12 @@ class GetLowestOfferPrice extends Command
             $responseData = json_decode($response, true);
 
             if (isset($responseData['offerNumber'])) {
+
+                if ($offer->offer_price != $updatedPrice) {
+                    // Send email notification
+                    $this->sendOfferPriceChangedEmail($offer, $offer->offer_price, $updatedPrice);
+                }
+
                 $updatedOfferJson = $this->removeBusinessModel($response);
                 \Log::info('updated removed');
                 \Log::info($updatedOfferJson);
@@ -198,5 +206,12 @@ class GetLowestOfferPrice extends Command
         } else {
             return false;
         }
+    }
+
+    private function sendOfferPriceChangedEmail($offer, $oldPrice, $newPrice)
+    {
+        $email = config('mail.to.address');
+        \Log::info($email);
+        Mail::to($email)->queue(new OfferPriceChanged($offer, $oldPrice, $newPrice));
     }
 }
