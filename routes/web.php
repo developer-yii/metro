@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserAjaxController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ScrapController;
+use App\Http\Controllers\Admin\OfferController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -59,6 +60,14 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('detail', [UserAjaxController::class, 'detail'])->name('detail');
         Route::any('addupdate', [UserAjaxController::class, 'addupdate'])->name('addupdate');
         Route::post('delete', [UserAjaxController::class, 'delete'])->name('delete');
+    });
+
+    /* Routes For offers */
+    Route::group(['prefix' => 'offers', 'as' => 'offers.'], function () {
+        Route::get('/', [OfferController::class, 'index'])->name('index');
+        Route::post('get-data', [OfferController::class, 'getData'])->name('getData');
+        Route::post('detail', [OfferController::class, 'detail'])->name('detail');
+        Route::any('addupdate', [OfferController::class, 'addupdate'])->name('addupdate');        
     });
 
     /* Routes For profile */

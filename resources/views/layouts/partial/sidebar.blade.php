@@ -2,7 +2,7 @@
 <div class="leftside-menu">
 
     <!-- Brand Logo Light -->
-    <a href="{{ route('dashboard') }}" class="logo logo-light">
+    <a href="{{ route('offers.index') }}" class="logo logo-light">
         <span class="logo-lg">
             <img src="{{$baseUrl}}images/logo.png" alt="logo">
         </span>
@@ -12,7 +12,7 @@
     </a>
 
     <!-- Brand Logo Dark -->
-    <a href="{{ route('dashboard') }}" class="logo logo-dark">
+    <a href="{{ route('offers.index') }}" class="logo logo-dark">
         <span class="logo-lg">
             <img src="{{$baseUrl}}images/logo-dark.png" alt="dark logo">
         </span>
@@ -46,31 +46,27 @@
 
             <li class="side-nav-title">Navigation</li>
 
-            <li class="side-nav-item {{ Request::is('dashboard') ? 'menuitem-active' : '' }}">
+            {{-- <li class="side-nav-item {{ Request::is('dashboard') ? 'menuitem-active' : '' }}">
                 <a href="{{ route('dashboard') }}" class="side-nav-link">
                     <i class="uil-home-alt"></i>
                     <span class="badge bg-success float-end">5</span>
                     <span> Dashboards </span>
                 </a>
+            </li> --}}
+
+            <li class="side-nav-item {{ Request::is('offers') ? 'menuitem-active' : '' }}">
+                <a href="{{ route('offers.index') }}" class="side-nav-link">
+                    <i class="uil-pricetag-alt"></i>                    
+                    <span> Offers </span>
+                </a>
             </li>
 
-            <li class="side-nav-item {{ (Request::is('users') || Request::is('users/*')) ? 'menuitem-active' : '' }}">
-                <a data-bs-toggle="collapse" href="#sidebarUsers" aria-expanded="false" aria-controls="sidebarUsers" class="side-nav-link">
-                    <i class="uil-user"></i>
+            <li class="side-nav-item {{ Request::is('users') ? 'menuitem-active' : '' }}">
+                <a href="{{ route('users.ajax.index') }}" class="side-nav-link">
+                    <i class="uil-user"></i>                    
                     <span> Users </span>
-                    <span class="menu-arrow"></span>
                 </a>
-                <div class="collapse {{ (Request::is('users') || Request::is('users/*')) ? 'show' : '' }}" id="sidebarUsers">
-                    <ul class="side-nav-second-level">
-                        <li class="{{ (Request::is('users') || Request::is('users/*')) ? 'menuitem-active' : '' }}">
-                            <a href="{{ route('users.index') }}" class="{{ (Request::is('users') || Request::is('users/*')) ? 'active' : '' }}">Users</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('users.ajax.index') }}">Users Ajax</a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
+            </li>           
 
         </ul>
         <!--- End Sidemenu -->

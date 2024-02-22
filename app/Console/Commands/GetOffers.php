@@ -77,6 +77,9 @@ class GetOffers extends Command
                 Offer::create([
                     'productKey' => $offer['productKey'],
                     'offer_price' => $offer['netPrice']['amount'],
+                    'productName' => $offer['productName'],
+                    'mid' => $offer['mid'],
+                    'quantity' => $offer['quantity'],
                     'offer_json' => json_encode($offer), // Store modified offer as JSON                    
                 ]);
             }

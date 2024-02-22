@@ -32,29 +32,60 @@ class GetLowestOfferPrice extends Command
         $offers = Offer::all();
 
         foreach ($offers as $offer) {
+            $defaultPercentage = 10; // Default percentage if custom offer percentage is not available
+            $interested = true;
+            $percentage = $defaultPercentage;
 
-            $productKey = $offer->productKey;
-            $url = 'http://api.scraperapi.com?api_key=' . $api_key . '&url=https://www.makro.es/marketplace/product/' . $productKey;
+            if ($offer->customOffer) {
+                if ($offer->customOffer->percentage) {
+                    $percentage = $offer->customOffer->percentage;
+                }
 
-            $response = Http::get($url);
-
-            if ($response->failed()) {
-                \Log::error('Failed to fetch data from the marketplace API.:' . $productKey);
-                continue;
+                $interested = $offer->customOffer->is_interested_product;
             }
 
-            // Get lowestPrice from provided response
-            $lowestPrice = $this->extractLowestPrice($response->body());
-            $tenPercentLowerOfferPrice = round($offer->offer_price * 0.9, 2);
-            \Log::info('ten lowest: '.$tenPercentLowerOfferPrice);
+            if ($interested) {
+                $productKey = $offer->productKey;
+                $url = 'http://api.scraperapi.com?api_key=' . $api_key . '&url=https://www.makro.es/marketplace/product/' . $productKey;
 
-            // if we get lowest price and it is less than offer price then we need to update our offer price accordingly
-            if ($lowestPrice && $lowestPrice > 0 && $lowestPrice < $offer->offer_price && $lowestPrice > $tenPercentLowerOfferPrice) {
-                \Log::info('inside');
-                $this->updateLowestPriceToMetro($lowestPrice, $offer);
+                $response = Http::get($url);
+
+                if ($response->failed()) {
+                    \Log::error('Failed to fetch data from the marketplace API.:' . $productKey);
+                    continue;
+                }
+
+                // Get lowestPrice from provided response
+                $lowestPrice = $this->extractLowestPrice($response->body());
+
+                // if we get lowest price and it is less than offer price then we need to update our offer price accordingly
+                if ($lowestPrice && $lowestPrice > 0 && $lowestPrice < $offer->offer_price) {
+                    \Log::info('inside');
+
+                    // Calculate factor based on percentage
+                    $factor = round(1 - ($percentage / 100), 2);
+                    \Log::info($factor);
+
+                    // Calculate the price below which we would consider updating the offer
+                    $percentLowerOfferPrice = round($offer->offer_price * $factor, 2);
+
+                    // Log the calculated price for debugging
+                    \Log::info('ten lowest: ' . $percentLowerOfferPrice);
+
+                    // Check if the lowest price is lower than the calculated offer price
+                    if ($lowestPrice > $percentLowerOfferPrice) {
+                        \Log::info('Updating offer price...');
+                        $this->updateLowestPriceToMetro($lowestPrice, $offer);
+                    } else {
+                        \Log::info('Lowest price is not significantly lower than offer price.');
+                    }
+                }
+            } else {
+                \Log::info('not interested: ' . $offer->productKey);
             }
+
             \Log::info('handle end');
-        }
+        } // foreach end
     }
 
     private function extractLowestPrice($htmlContent)

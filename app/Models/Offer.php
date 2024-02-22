@@ -11,10 +11,19 @@ class Offer extends Model
 
     protected $fillable = [
         'productKey',
+        'productName',
+        'mid',
+        'quantity',
         'lowest_price',
         'offer_price',
         'offer_json',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'updated_by'
     ];
+
+    public function customOffer()
+    {
+        return $this->hasOne(CustomOffer::class, 'productKey', 'productKey');
+    }
 }

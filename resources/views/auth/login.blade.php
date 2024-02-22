@@ -10,7 +10,7 @@
                     <!-- Logo -->
                     <div class="card-header py-4 text-center bg-primary">
                         <a href="javascript:void(0);">
-                            <span><img src="{{ asset('backend/images/logo.png') }}" alt="logo" height="22"></span>
+                            <span><h3 style="color: white;">Metro Makro</h3></span>
                         </a>
                     </div>
 
