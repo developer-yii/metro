@@ -47,9 +47,14 @@ class GetLowestOfferPrice extends Command
             }
 
             if ($interested) {
+                // Product key for API request
                 $productKey = $offer->productKey;
-                $url = 'http://api.scraperapi.com?api_key=' . $api_key . '&url=https://www.makro.es/marketplace/product/' . $productKey;
+                \Log::info($productKey);
 
+                // API Url to scrape website
+                $url = 'http://api.scrape.do?token=' . $api_key . '&url=https://www.makro.es/marketplace/product/' . $productKey;
+
+                // call API and get response
                 $response = Http::get($url);
 
                 if ($response->failed()) {
@@ -59,6 +64,7 @@ class GetLowestOfferPrice extends Command
 
                 // Get lowestPrice from provided response
                 $lowestPrice = $this->extractLowestPrice($response->body());
+                \Log::info($lowestPrice);
 
                 // if we get lowest price and it is less than offer price then we need to update our offer price accordingly
                 if ($lowestPrice && $lowestPrice > 0 && $lowestPrice < $offer->offer_price) {
