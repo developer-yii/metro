@@ -232,7 +232,7 @@ class GetLowestOfferPrice extends Command
             'mmid' => $offer->mid,
             'new_price' => $newPrice,
             'old_price' => $oldPrice,
-            'type' => PriceUpdateLog::TYPE_MANUAL
+            'type' => PriceUpdateLog::TYPE_SCHEDULE
         ]);
 
         if($r){
