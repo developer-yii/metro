@@ -80,6 +80,7 @@ class GetOffers extends Command
                     'productName' => $offer['productName'],
                     'mid' => $offer['mid'],
                     'quantity' => $offer['quantity'],
+                    'internal_status' => $offer['offerStatus']['internalStatus'],
                     'offer_json' => json_encode($offer), // Store modified offer as JSON                    
                 ]);
             }

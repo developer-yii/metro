@@ -1,41 +1,24 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Services;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
+use App\Models\User;
 use App\Models\Offer;
+use App\Models\CustomOffer;
 use App\Models\PriceUpdateLog;
-use App\Mail\OfferPriceChanged;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
 use DOMDocument;
+use Exception;
+use Illuminate\Support\Facades\Storage;
 
-class GetLowestOfferPrice extends Command
+class OfferService
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'app:get-update-lowest-offer-price';
+	public function offerSync($offerId){
+		\Log::info('offerSync');
+		$api_key = config('metro.scraper_key');
+		$offer = Offer::find($offerId);
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Find and update the lowest price for offers';
-
-    /**
-     * Execute the console command.
-     */
-    public function handle()
-    {
-        $api_key = config('metro.scraper_key');
-        $offers = Offer::all();
-
-        foreach ($offers as $offer) {
-            $defaultPercentage = 10; // Default percentage if custom offer percentage is not available
+		$defaultPercentage = 10; // Default percentage if custom offer percentage is not available
             $interested = true;
             $percentage = $defaultPercentage;
 
@@ -60,8 +43,9 @@ class GetLowestOfferPrice extends Command
                     $response = Http::get($url);
 
                     if ($response->failed()) {
-                        \Log::error('Failed to fetch data from the marketplace API.:' . $productKey);
-                        continue;
+                        \Log::error('Failed to fetch data from the marketplace API.:');
+                        $result = [ 'status' => false, 'message' => 'Failed to fetch data from the marketplace'];
+            			return $result;
                     }
 
                     // Get lowestPrice from provided response
@@ -85,23 +69,35 @@ class GetLowestOfferPrice extends Command
                         // Check if the lowest price is lower than the calculated offer price
                         if ($lowestPrice > $percentLowerOfferPrice) {
                             \Log::info('Updating offer price...');
-                            $this->updateLowestPriceToMetro($lowestPrice, $offer);
+                            $r = $this->updateLowestPriceToMetro($lowestPrice, $offer);
+                            if($r){
+                            	$result = [ 'status' => true, 'message' => 'Product price has been synced'];
+            					return $result;	
+                            }
                         } else {
-                            \Log::info('Lowest price is not significantly lower than offer price.');
+                            \Log::info('Lowest price is significantly lower than offer price.');
+                            $result = [ 'status' => false, 'message' => 'Lowest price is significantly lower than offer price.'];
+            				return $result;
                         }
+                    }else{
+                    	$result = [ 'status' => false, 'message' => 'offer price already lowest or lowest price not found'];
+            			return $result;
                     }
                 }else{
-                    \Log::info('product internal status not active');
+                    \Log::info('product internal status not active');                    
+            		$result = [ 'status' => false, 'message' => 'Product internal status not active'];
+            		return $result;
                 }
             } else {
                 \Log::info('not interested: ' . $offer->productKey);
+            	$result = [ 'status' => false, 'message' => 'Product not interested'];
+            	return $result;
             }
 
-            \Log::info('handle end');        
-        } // foreach end
-    }
+            \Log::info('handle end');
+	}
 
-    private function extractLowestPrice($htmlContent)
+	private function extractLowestPrice($htmlContent)
     {
         libxml_use_internal_errors(true);
         $dom = new DOMDocument();
@@ -122,20 +118,6 @@ class GetLowestOfferPrice extends Command
 
         \Log::info('lowestPrice: ' . $price);
         return $price;
-    }
-
-    private function updateOfferJson($offerJson, $updatedPrice)
-    {
-        $offerData = json_decode($offerJson, true);
-        $offerData['netPrice']['amount'] = number_format($updatedPrice, 2, '.', '');
-        return $offerData;
-    }
-
-    private function removeBusinessModel($offerJson)
-    {
-        $offerData = json_decode($offerJson, true);
-        unset($offerData['businessModel']);
-        return json_encode($offerData);
     }
 
     private function updateLowestPriceToMetro($lowestPrice, Offer $offer)
@@ -196,7 +178,7 @@ class GetLowestOfferPrice extends Command
 
             if (isset($responseData['offerNumber'])) {
 
-                if ($offer->offer_price != $updatedPrice) {                    
+                if ($offer->offer_price != $updatedPrice) {
                     // update price change log
                     $this->updatePriceChangeLog($offer, $offer->offer_price, $updatedPrice);
                 }
@@ -219,6 +201,13 @@ class GetLowestOfferPrice extends Command
         }
     }
 
+    private function updateOfferJson($offerJson, $updatedPrice)
+    {
+        $offerData = json_decode($offerJson, true);
+        $offerData['netPrice']['amount'] = number_format($updatedPrice, 2, '.', '');
+        return $offerData;
+    }
+
     private function sendOfferPriceChangedEmail($offer, $oldPrice, $newPrice)
     {
         $email = config('mail.to.address');
@@ -227,18 +216,25 @@ class GetLowestOfferPrice extends Command
     }
 
     private function updatePriceChangeLog(Offer $offer, $oldPrice, $newPrice){
-        $r = PriceUpdateLog::create([
-            'productName' => $offer->productName,
-            'mmid' => $offer->mid,
-            'new_price' => $newPrice,
-            'old_price' => $oldPrice,
-            'type' => PriceUpdateLog::TYPE_MANUAL
-        ]);
+    	$r = PriceUpdateLog::create([
+    		'productName' => $offer->productName,
+    		'mmid' => $offer->mid,
+    		'new_price' => $newPrice,
+    		'old_price' => $oldPrice,
+    		'type' => PriceUpdateLog::TYPE_MANUAL
+    	]);
 
-        if($r){
-            return true;
-        }
-        
-        return false;
+    	if($r){
+    		return true;
+    	}
+    	
+    	return false;
+    }
+
+    private function removeBusinessModel($offerJson)
+    {
+        $offerData = json_decode($offerJson, true);
+        unset($offerData['businessModel']);
+        return json_encode($offerData);
     }
 }

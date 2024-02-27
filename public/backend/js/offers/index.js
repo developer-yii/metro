@@ -203,5 +203,34 @@ $(document).ready(function () {
                 }
             },
         });
-    });            
+    });   
+
+    $("body").on("click", ".offer-sync", function (e) {
+        var offerId = $(this).data("id");
+        $this = $(this);
+        $(".error").html("");     
+        $(this).find('.mdi-sync').addClass('spinning');
+        $.ajax({
+            url: syncUrl,
+            type: "POST",
+            data: { id: offerId },
+            success: function (response) {
+                $this.find('.mdi-sync').removeClass('spinning');
+                if (response.status) {
+                    offerDatatable.draw();
+                    showSuccessToast({
+                        text: response.message,
+                    });
+                }else{
+                    showErrorToast({
+                        heading: "Opss..!",
+                        text: response.message,
+                    });
+                }
+            },
+            error: function(){
+                $this.find('.mdi-sync').removeClass('spinning');
+            }
+        });
+    });         
 });

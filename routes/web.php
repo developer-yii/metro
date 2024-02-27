@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\UserAjaxController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ScrapController;
 use App\Http\Controllers\Admin\OfferController;
+use App\Http\Controllers\Admin\PriceUpdateLogController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -67,7 +68,14 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/', [OfferController::class, 'index'])->name('index');
         Route::post('get-data', [OfferController::class, 'getData'])->name('getData');
         Route::post('detail', [OfferController::class, 'detail'])->name('detail');
+        Route::post('product/sync', [OfferController::class, 'sync'])->name('product.sync');
         Route::any('addupdate', [OfferController::class, 'addupdate'])->name('addupdate');        
+    });
+
+    /* Routes For PriceUpdateLog */
+    Route::group(['prefix' => 'priceUpdatelogs', 'as' => 'priceUpdatelogs.'], function () {
+        Route::get('/', [PriceUpdateLogController::class, 'index'])->name('index');
+        Route::post('get-data', [PriceUpdateLogController::class, 'getData'])->name('getData');                
     });
 
     /* Routes For profile */

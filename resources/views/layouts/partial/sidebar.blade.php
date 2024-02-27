@@ -61,6 +61,13 @@
                 </a>
             </li>
 
+            <li class="side-nav-item {{ Request::is('priceUpdatelogs') ? 'menuitem-active' : '' }}">
+                <a href="{{ route('priceUpdatelogs.index') }}" class="side-nav-link">
+                    <i class="uil-history-alt"></i>                    
+                    <span> Price Update Log </span>
+                </a>
+            </li>
+
             <li class="side-nav-item {{ Request::is('users') ? 'menuitem-active' : '' }}">
                 <a href="{{ route('users.ajax.index') }}" class="side-nav-link">
                     <i class="uil-user"></i>                    

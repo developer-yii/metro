@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\CustomOfferRequest;
 use App\Models\Offer;
 use App\Models\CustomOffer;
+use App\Services\OfferService;
 use Yajra\DataTables\Facades\DataTables;
 use Auth;
 
@@ -46,6 +47,8 @@ class OfferController extends Controller
                 ->addColumn('action', function ($row) {
 
                     $action = "";
+
+                    $action .= '<button type="button" class="btn btn-sm btn-secondary me-1 offer-sync" data-id="' . $row->id . '"><i class="mdi mdi-sync" title="Sync"></i></button>';
 
                     $action .= '<button type="button" class="btn btn-sm btn-info me-1 offer-edit" data-bs-toggle="modal" data-bs-target="#offer-modal" data-id="' . $row->id . '"><i class="mdi mdi-pencil" title="Edit"></i></button>';
 
@@ -92,5 +95,23 @@ class OfferController extends Controller
             $result = ['status' => false, 'message' => 'Offer update failed.'];
             return response()->json($result);
         }
+    }
+
+    public function sync(Request $request)
+    {
+        if($request->id){            
+            $offer = Offer::find($request->id);
+            if($offer)
+            {
+                $offerService = new OfferService;
+                $result = $offerService->offerSync($request->id);                
+            }
+            else{
+                $result = [ 'status' => false, 'message' => 'offer not found'];                
+            }
+        }else{
+            $result = [ 'status' => false, 'message' => 'Something went wrong. try after reloading page'];
+        }
+        return response()->json($result);
     }
 }

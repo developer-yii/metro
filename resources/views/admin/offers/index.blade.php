@@ -165,6 +165,7 @@
         var getOfferDataLink = "{{ route('offers.getData') }}";
         var detailUrl = "{{ route('offers.detail') }}";
         var addEditUrl = "{{ route('offers.addupdate') }}";
+        var syncUrl = "{{ route('offers.product.sync') }}";
         // var deleteUrl = "{{ route('users.ajax.delete') }}";
     </script>
 @endsection

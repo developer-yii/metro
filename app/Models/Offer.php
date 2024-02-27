@@ -16,6 +16,7 @@ class Offer extends Model
         'quantity',
         'lowest_price',
         'offer_price',
+        'internal_status',
         'offer_json',
         'created_at',
         'updated_at',
