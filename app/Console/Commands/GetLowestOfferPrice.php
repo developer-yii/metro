@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use App\Models\Offer;
 use App\Models\PriceUpdateLog;
+use App\Models\JobLog;
 use App\Mail\OfferPriceChanged;
 use Illuminate\Support\Facades\Mail;
 use DOMDocument;
@@ -38,6 +39,12 @@ class GetLowestOfferPrice extends Command
             $defaultPercentage = 10; // Default percentage if custom offer percentage is not available
             $interested = true;
             $percentage = $defaultPercentage;
+
+            // to log job run
+            JobLog::create([
+                'productName' => substr($offer->productName, 0, 255),
+                'productKey' => $offer->productKey
+            ]);
 
             if ($offer->customOffer) {
                 if ($offer->customOffer->percentage) {
@@ -228,7 +235,7 @@ class GetLowestOfferPrice extends Command
 
     private function updatePriceChangeLog(Offer $offer, $oldPrice, $newPrice){
         $r = PriceUpdateLog::create([
-            'productName' => $offer->productName,
+            'productName' => substr($offer->productName, 0, 255),
             'mmid' => $offer->mid,
             'new_price' => $newPrice,
             'old_price' => $oldPrice,

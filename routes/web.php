@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\UserAjaxController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ScrapController;
 use App\Http\Controllers\Admin\OfferController;
+use App\Http\Controllers\Admin\JobLogController;
 use App\Http\Controllers\Admin\PriceUpdateLogController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,10 @@ use Illuminate\Support\Facades\Route;
 Auth::routes();
 
 Route::get('/', function () {
+    return (Auth::check()) ? redirect('dashboard') : redirect('login');
+});
+
+Route::get('/register', function () {
     return (Auth::check()) ? redirect('dashboard') : redirect('login');
 });
 
@@ -76,6 +81,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['prefix' => 'priceUpdatelogs', 'as' => 'priceUpdatelogs.'], function () {
         Route::get('/', [PriceUpdateLogController::class, 'index'])->name('index');
         Route::post('get-data', [PriceUpdateLogController::class, 'getData'])->name('getData');                
+    });
+
+    /* Routes For JobLog */
+    Route::group(['prefix' => 'jobLogs', 'as' => 'jobLogs.'], function () {
+        Route::get('/', [JobLogController::class, 'index'])->name('index');
+        Route::post('get-data', [JobLogController::class, 'getData'])->name('getData');                
     });
 
     /* Routes For profile */

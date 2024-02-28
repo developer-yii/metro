@@ -77,7 +77,7 @@ class GetOffers extends Command
                 Offer::create([
                     'productKey' => $offer['productKey'],
                     'offer_price' => $offer['netPrice']['amount'],
-                    'productName' => $offer['productName'],
+                    'productName' => substr($offer['productName'], 0, 255),
                     'mid' => $offer['mid'],
                     'quantity' => $offer['quantity'],
                     'internal_status' => $offer['offerStatus']['internalStatus'],

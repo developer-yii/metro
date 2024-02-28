@@ -68,6 +68,13 @@
                 </a>
             </li>
 
+            <li class="side-nav-item {{ Request::is('jobLogs') ? 'menuitem-active' : '' }}">
+                <a href="{{ route('jobLogs.index') }}" class="side-nav-link">
+                    <i class="uil-database-alt"></i>                    
+                    <span> Job Log </span>
+                </a>
+            </li>
+
             <li class="side-nav-item {{ Request::is('users') ? 'menuitem-active' : '' }}">
                 <a href="{{ route('users.ajax.index') }}" class="side-nav-link">
                     <i class="uil-user"></i>                    
