@@ -37,7 +37,7 @@
                                                 <th>Old Price</th>
                                                 <th>New Price</th>
                                                 <th>Method</th>
-                                                <th>Time</th>                                                
+                                                <th>Time</th>
                                             </tr>
                                         </thead>
 
@@ -52,12 +52,12 @@
             </div>
 
         </div>
-    </div>    
+    </div>
 @endsection
-@section('script')    
-    <script src="{{ asset('backend/js/priceUpdateLog/index.js') }}"></script>
+@section('script')
+    <script src="{{ asset('backend/js/priceUpdateLog/index.js') }}?{{time()}}"></script>
     <script>
-        var getLogDataLink = "{{ route('priceUpdatelogs.getData') }}";        
+        var getLogDataLink = "{{ route('priceUpdatelogs.getData') }}";
         // var deleteUrl = "{{ route('users.ajax.delete') }}";
     </script>
 @endsection

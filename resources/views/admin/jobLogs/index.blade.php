@@ -33,8 +33,8 @@
                                         <thead>
                                             <tr>
                                                 <th>Product Name</th>
-                                                <th>Product Key</th>                                                
-                                                <th>Time</th>                                                
+                                                <th>Product Key</th>
+                                                <th>Time</th>
                                             </tr>
                                         </thead>
 
@@ -49,12 +49,12 @@
             </div>
 
         </div>
-    </div>    
+    </div>
 @endsection
-@section('script')    
-    <script src="{{ asset('backend/js/jobLog/index.js') }}"></script>
+@section('script')
+    <script src="{{ asset('backend/js/jobLog/index.js') }}?{{time()}}"></script>
     <script>
-        var getJobLogLink = "{{ route('jobLogs.getData') }}";        
+        var getJobLogLink = "{{ route('jobLogs.getData') }}";
         // var deleteUrl = "{{ route('users.ajax.delete') }}";
     </script>
 @endsection
