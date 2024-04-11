@@ -29,9 +29,9 @@ class PriceUpdateLogController extends Controller
 
             return DataTables::of($offers)
                 ->addIndexColumn()
-                ->addColumn('create_time', function ($row) {
+                ->addColumn('create_time_formatted', function ($row) {
                     return Carbon::createFromFormat('Y-m-d H:i:s', $row->created_at)->format('d.m.Y H.i');
-                })                
+                })
                 ->make(true);
         }
     }
