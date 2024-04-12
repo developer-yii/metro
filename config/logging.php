@@ -70,7 +70,7 @@ return [
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => 7,
-            'permissions' => 0777,
+            'permissions' => 0775,
             'replace_placeholders' => true,
         ],
 
