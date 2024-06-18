@@ -34,6 +34,13 @@ class RenameLogFile extends Command
         if (file_exists($currentLogFile)) {
             rename($currentLogFile, $newLogFile);
             $this->info('laravel.log file renamed successfully.');
+
+            // Create a new log file
+            file_put_contents($currentLogFile, '');
+            // Set the permissions of the new log file to 0777
+            chmod($currentLogFile, 0777);
+            $this->info('New laravel.log file created with 0777 permissions.');
+
         } else {
             $this->error('laravel.log file not found.');
         }
