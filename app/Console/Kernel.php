@@ -22,10 +22,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('joblogs:delete')->dailyAt('01:00')->timezone('Europe/Madrid');
 
         // Schedule laravel log:rename command every monday at 00:30
-        $schedule->command('log:rename')->weekly()->mondays()->at('00:30')->timezone('Europe/Madrid');
+        // $schedule->command('log:rename')->weekly()->mondays()->at('00:30')->timezone('Europe/Madrid');
 
         // Schedule laravel log:remove command every tuesday at 00:40
-        $schedule->command('log:remove-old')->weekly()->tuesdays()->at('00:40')->timezone('Europe/Madrid');
+        // $schedule->command('log:remove-old')->weekly()->tuesdays()->at('00:40')->timezone('Europe/Madrid');
     }
 
     /**
