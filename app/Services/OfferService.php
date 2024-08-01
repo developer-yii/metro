@@ -35,7 +35,7 @@ class OfferService
                 $productKey = $offer->productKey;
                 \Log::info($productKey);
 
-                if($offer->internal_status == 'active'){                                   
+                if($offer->internal_status == 'active'){
                     // API Url to scrape website
                     $url = 'http://api.scrape.do?token=' . $api_key . '&url=https://www.makro.es/marketplace/product/' . $productKey;
 
@@ -72,7 +72,7 @@ class OfferService
                             $r = $this->updateLowestPriceToMetro($lowestPrice, $offer);
                             if($r){
                             	$result = [ 'status' => true, 'message' => 'Product price has been synced'];
-            					return $result;	
+            					return $result;
                             }
                         } else {
                             \Log::info('Lowest price is significantly lower than offer price.');
@@ -84,7 +84,7 @@ class OfferService
             			return $result;
                     }
                 }else{
-                    \Log::info('product internal status not active');                    
+                    \Log::info('product internal status not active');
             		$result = [ 'status' => false, 'message' => 'Product internal status not active'];
             		return $result;
                 }
@@ -107,12 +107,22 @@ class OfferService
         $pattern = '/"lowPrice":"([\d\.]+)"/';
         $price = null;
 
-        foreach ($scripts as $script) {
-            $text = $script->nodeValue;
+        // foreach ($scripts as $script) {
+        //     $text = $script->nodeValue;
 
-            if (preg_match($pattern, $text, $matches)) {
-                $price = $matches[1]; // $price will now contain the lowest price
-                break;
+        //     if (preg_match($pattern, $text, $matches)) {
+        //         $price = $matches[1]; // $price will now contain the lowest price
+        //         break;
+        //     }
+        // }
+        foreach ($scripts as $script) {
+            if ($script->getAttribute('id') === '__NEXT_DATA__') {
+                $jsonData = json_decode($script->nodeValue, true);
+
+                if (isset($jsonData['props']['pageProps']['product']['result']['offers'][0]['originRegionInfo']['price']['net'])) {
+                    $price = $jsonData['props']['pageProps']['product']['result']['offers'][0]['originRegionInfo']['price']['net'];
+                    break;
+                }
             }
         }
 
@@ -227,7 +237,7 @@ class OfferService
     	if($r){
     		return true;
     	}
-    	
+
     	return false;
     }
 
