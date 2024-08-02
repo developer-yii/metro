@@ -119,10 +119,20 @@ class OfferService
             if ($script->getAttribute('id') === '__NEXT_DATA__') {
                 $jsonData = json_decode($script->nodeValue, true);
 
-                if (isset($jsonData['props']['pageProps']['product']['result']['offers'][0]['originRegionInfo']['price']['net'])) {
-                    $price = $jsonData['props']['pageProps']['product']['result']['offers'][0]['originRegionInfo']['price']['net'];
-                    break;
+                if (isset($jsonData['props']['pageProps']['product']['result']['offers']) &&
+                    is_array($jsonData['props']['pageProps']['product']['result']['offers'])) {
+
+                    foreach ($jsonData['props']['pageProps']['product']['result']['offers'] as $offer) {
+                        if (isset($offer['originRegionInfo']['price']['net'])) {
+                            $netPrice = floatval($offer['originRegionInfo']['price']['net']);
+
+                            if ($price === null || $netPrice < $price) {
+                                $price = $netPrice;
+                            }
+                        }
+                    }
                 }
+                break;
             }
         }
 
