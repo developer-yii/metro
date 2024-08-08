@@ -123,8 +123,14 @@ class OfferService
                     is_array($jsonData['props']['pageProps']['product']['result']['offers'])) {
 
                     foreach ($jsonData['props']['pageProps']['product']['result']['offers'] as $offer) {
-                        if (isset($offer['originRegionInfo']['price']['net'])) {
+                        if (isset($offer['originRegionInfo']['price']['net']) && $offer['originRegionInfo']['region'] == "ES_MAIN") {
                             $netPrice = floatval($offer['originRegionInfo']['price']['net']);
+
+                            if ($price === null || $netPrice < $price) {
+                                $price = $netPrice;
+                            }
+                        } else if(isset($offer['destinationRegionInfo']['price']['net']) && $offer['destinationRegionInfo']['region'] == "ES_MAIN") {
+                            $netPrice = floatval($offer['destinationRegionInfo']['price']['net']);
 
                             if ($price === null || $netPrice < $price) {
                                 $price = $netPrice;
