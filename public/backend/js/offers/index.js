@@ -6,7 +6,7 @@ $(document).ready(function () {
                 number: true,
                 min: 0,
                 max: 100, // Assuming percentage is between 0 and 100
-                // Add a custom method to allow decimal values                
+                // Add a custom method to allow decimal values
                 decimalWithTwoPlaces: true,
             },
         },
@@ -35,7 +35,7 @@ $(document).ready(function () {
         "Please enter a valid decimal value with up to 2 decimal places."
     );
 
-    var offerDatatable = $("#offer-datatable").DataTable({        
+    var offerDatatable = $("#offer-datatable").DataTable({
         processing: true,
         serverSide: true,
         pagingType: "full_numbers",
@@ -68,6 +68,14 @@ $(document).ready(function () {
             {
                 data: "percentage",
                 name: "percentage",
+            },
+            {
+                data: "destination",
+                name: "destination",
+            },
+            {
+                data: "internal_status",
+                name: "internal_status",
             },
             {
                 data: "is_interested_product",
@@ -171,14 +179,14 @@ $(document).ready(function () {
                         response.customOffer &&
                         response.customOffer.percentage !== null &&
                         response.customOffer.percentage !== undefined
-                    ){                        
+                    ){
                         $("#offer-form")
                             .find("#percentage")
-                            .val(response.customOffer.percentage);                   
+                            .val(response.customOffer.percentage);
                     }else{
                         $("#offer-form")
                             .find("#percentage")
-                            .val('');                   
+                            .val('');
 
                     }
 
@@ -203,12 +211,12 @@ $(document).ready(function () {
                 }
             },
         });
-    });   
+    });
 
     $("body").on("click", ".offer-sync", function (e) {
         var offerId = $(this).data("id");
         $this = $(this);
-        $(".error").html("");     
+        $(".error").html("");
         $(this).find('.mdi-sync').addClass('spinning');
         $.ajax({
             url: syncUrl,
@@ -232,5 +240,5 @@ $(document).ready(function () {
                 $this.find('.mdi-sync').removeClass('spinning');
             }
         });
-    });         
+    });
 });

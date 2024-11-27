@@ -9,3 +9,82 @@
 .mdi-sync.spinning::before { /* Important change */
   animation: spin 1s linear infinite;
 }
+
+/* Ensure "Product Name" column has a fixed width */
+table#offer-datatable th:nth-child(1), /* Target the first column header */
+table#offer-datatable td:nth-child(1) /* Target the first column data */ {
+    width: 250; /* Set default width */
+    max-width: 250px; /* Prevent column from growing */
+    white-space: wrap; /* Prevent text wrapping */
+    text-overflow: ellipsis; /* Show ellipsis for overflowing text */
+}
+
+/* Responsive design adjustments */
+@media (max-width: 768px) {
+    table#offer-datatable th:nth-child(1),
+    table#offer-datatable td:nth-child(1) {
+        width: 150px; /* Adjust for tablets */
+        max-width: 150px;
+    }
+}
+
+@media (max-width: 576px) {
+    table#offer-datatable th:nth-child(1),
+    table#offer-datatable td:nth-child(1) {
+        width: 100px; /* Adjust for mobile devices */
+        max-width: 100px;
+        white-space: normal; /* Allow wrapping for better visibility */
+    }
+}
+
+table#priceUpdate-datatable th:nth-child(1), /* Target the first column header */
+table#priceUpdate-datatable td:nth-child(1) /* Target the first column data */ {
+    width: 250; /* Set default width */
+    max-width: 250px; /* Prevent column from growing */
+    white-space: wrap; /* Prevent text wrapping */
+    text-overflow: ellipsis; /* Show ellipsis for overflowing text */
+}
+
+/* Responsive design adjustments */
+@media (max-width: 768px) {
+    table#priceUpdate-datatable th:nth-child(1),
+    table#priceUpdate-datatable td:nth-child(1) {
+        width: 150px; /* Adjust for tablets */
+        max-width: 150px;
+    }
+}
+
+@media (max-width: 576px) {
+    table#priceUpdate-datatable th:nth-child(1),
+    table#priceUpdate-datatable td:nth-child(1) {
+        width: 100px; /* Adjust for mobile devices */
+        max-width: 100px;
+        white-space: normal; /* Allow wrapping for better visibility */
+    }
+}
+
+table#jobLog-datatable th:nth-child(1), /* Target the first column header */
+table#jobLog-datatable td:nth-child(1) /* Target the first column data */ {
+    width: 250; /* Set default width */
+    max-width: 250px; /* Prevent column from growing */
+    white-space: wrap; /* Prevent text wrapping */
+    text-overflow: ellipsis; /* Show ellipsis for overflowing text */
+}
+
+/* Responsive design adjustments */
+@media (max-width: 768px) {
+    table#jobLog-datatable th:nth-child(1),
+    table#jobLog-datatable td:nth-child(1) {
+        width: 150px; /* Adjust for tablets */
+        max-width: 150px;
+    }
+}
+
+@media (max-width: 576px) {
+    table#jobLog-datatable th:nth-child(1),
+    table#jobLog-datatable td:nth-child(1) {
+        width: 100px; /* Adjust for mobile devices */
+        max-width: 100px;
+        white-space: normal; /* Allow wrapping for better visibility */
+    }
+}

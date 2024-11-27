@@ -21,6 +21,9 @@ class Kernel extends ConsoleKernel
         // Schedule joblogs:delete command every day at 01:00
         $schedule->command('joblogs:delete')->dailyAt('01:00')->timezone('Europe/Madrid');
 
+        // Price update log clear every day at 03:00
+        $schedule->command('app:delete-price-update-log')->dailyAt('03:00')->timezone('Europe/Madrid');
+
         // Schedule laravel log:rename command every monday at 00:30
         // $schedule->command('log:rename')->weekly()->mondays()->at('00:30')->timezone('Europe/Madrid');
 

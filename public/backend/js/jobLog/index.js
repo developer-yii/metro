@@ -6,7 +6,7 @@ $(document).ready(function () {
         pagingType: "full_numbers",
         columnDefs: [
             { width: "150px", targets: -1 }, // Set the width of the last column to 100 pixels
-            { visible: false, targets: [3] } // Hide the 7th column (index 6)
+            { visible: false, targets: [4] } // Hide the 5th column (index 4)
         ],
         language: {
             paginate: {
@@ -26,6 +26,10 @@ $(document).ready(function () {
             {
                 data: "productKey",
                 name: "productKey",
+            },
+            {
+                data: "destination",
+                name: "destination",
             },
             {
                 data: "created_at",

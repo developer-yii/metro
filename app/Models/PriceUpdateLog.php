@@ -9,12 +9,13 @@ class PriceUpdateLog extends Model
 {
     use HasFactory;
 
-    protected $fillable = [        
+    protected $fillable = [
         'productName',
         'mmid',
+        'destination',
         'new_price',
         'old_price',
-        'type',        
+        'type',
     ];
 
     const TYPE_MANUAL = 'manual';
