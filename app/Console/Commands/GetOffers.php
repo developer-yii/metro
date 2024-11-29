@@ -32,11 +32,11 @@ class GetOffers extends Command
 
         // Get configuration values
         $hmacSignature = config('metro.signature');
-        $clientKey = config('metro.client_id');        
+        $clientKey = config('metro.client_id');
 
         // Build API URL
         $host = 'https://app-seller-inventory.prod.de.metro-marketplace.cloud/openapi/v2/offers';
-        $limit = 1500;
+        $limit = 2000;
         $offset = 0;
         $sort = 'DESC';
         $url = $host . '?limit=' . $limit . '&offset=' . $offset . '&sort%5BcreatedAt%5D=' . $sort;
@@ -79,9 +79,11 @@ class GetOffers extends Command
                     'offer_price' => $offer['netPrice']['amount'],
                     'productName' => substr($offer['productName'], 0, 255),
                     'mid' => $offer['mid'],
+                    'sku' => $offer['sku'],
+                    'destination' => $offer['destination'],
                     'quantity' => $offer['quantity'],
                     'internal_status' => $offer['offerStatus']['internalStatus'],
-                    'offer_json' => json_encode($offer), // Store modified offer as JSON                    
+                    'offer_json' => json_encode($offer), // Store modified offer as JSON
                 ]);
             }
 

@@ -6,7 +6,7 @@ $(document).ready(function () {
         pagingType: "full_numbers",
         columnDefs: [
             { width: "150px", targets: -1 }, // Set the width of the last column to 100 pixels
-            { visible: false, targets: [6] } // Hide the 7th column (index 6)
+            { visible: false, targets: [7] } // Hide the 8th column (index 7)
         ],
         language: {
             paginate: {
@@ -26,6 +26,10 @@ $(document).ready(function () {
             {
                 data: "mmid",
                 name: "mmid",
+            },
+            {
+                data: "destination",
+                name: "destination",
             },
             {
                 data: "old_price",
@@ -56,7 +60,7 @@ $(document).ready(function () {
             },
 
         ],
-        order: [[5, 'desc']],
+        order: [[6, 'desc']],
         // ordering: false,
         drawCallback: function () {
             $(".dataTables_paginate > .pagination").addClass(

@@ -29,13 +29,15 @@
 
                             <div class="tab-content">
                                 <div class="tab-pane show active" id="alt-pagination-preview">
-                                    <table id="offer-datatable" class="table table-striped dt-responsive nowrap w-100">
+                                    <table id="offer-datatable" class="table table-striped table-fixed-col dt-responsive nowrap w-100">
                                         <thead>
                                             <tr>
                                                 <th>Product Name</th>
                                                 <th>Mid</th>
                                                 <th>Offer Price</th>
                                                 <th>Percentage</th>
+                                                <th>Destination</th>
+                                                <th>Status</th>
                                                 <th>Interested</th>
                                                 <th>Action</th>
                                             </tr>
@@ -43,9 +45,7 @@
 
                                     </table>
                                 </div>
-
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -159,7 +159,7 @@
     </div>
 @endsection
 @section('script')
-    <script src="{{ asset('backend/vendor/jquery-validate/jquery.validate.min.js') }}"></script>
+    <script src="{{ asset('backend/vendor/jquery-validate/jquery.validate.min.js') }}?{{time()}}"></script>
     <script src="{{ asset('backend/js/offers/index.js') }}"></script>
     <script>
         var getOfferDataLink = "{{ route('offers.getData') }}";

@@ -13,6 +13,8 @@ class Offer extends Model
         'productKey',
         'productName',
         'mid',
+        'sku',
+        'destination',
         'quantity',
         'lowest_price',
         'offer_price',
@@ -25,6 +27,7 @@ class Offer extends Model
 
     public function customOffer()
     {
-        return $this->hasOne(CustomOffer::class, 'productKey', 'productKey');
+        return $this->hasOne(CustomOffer::class, 'productKey', 'productKey')
+                    ->where('destination', $this->destination);
     }
 }

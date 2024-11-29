@@ -29,11 +29,12 @@
 
                             <div class="tab-content">
                                 <div class="tab-pane show active" id="alt-pagination-preview">
-                                    <table id="priceUpdate-datatable" class="table table-striped dt-responsive nowrap w-100">
+                                    <table id="priceUpdate-datatable" class="table table-striped table-fixed-col dt-responsive nowrap w-100">
                                         <thead>
                                             <tr>
                                                 <th>Product Name</th>
                                                 <th>Mid</th>
+                                                <th>Destination</th>
                                                 <th>Old Price</th>
                                                 <th>New Price</th>
                                                 <th>Method</th>

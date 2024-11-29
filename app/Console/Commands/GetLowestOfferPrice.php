@@ -43,7 +43,8 @@ class GetLowestOfferPrice extends Command
             // to log job run
             JobLog::create([
                 'productName' => substr($offer->productName, 0, 255),
-                'productKey' => $offer->productKey
+                'productKey' => $offer->productKey,
+                'destination' => $offer->destination
             ]);
 
             if ($offer->customOffer) {
@@ -61,7 +62,11 @@ class GetLowestOfferPrice extends Command
 
                 if($offer->internal_status == 'active'){
                     // API Url to scrape website
-                    $url = 'http://api.scrape.do?token=' . $api_key . '&url=https://www.makro.es/marketplace/product/' . $productKey;
+                    if($offer->destination == 'PT_MAIN'){
+                        $url = 'http://api.scrape.do?token=' . $api_key . '&url=https://www.makro.pt/marketplace/product/' . $productKey;
+                    } else {
+                        $url = 'http://api.scrape.do?token=' . $api_key . '&url=https://www.makro.es/marketplace/product/' . $productKey;
+                    }
 
                     // call API and get response
                     $response = Http::get($url);
@@ -72,7 +77,7 @@ class GetLowestOfferPrice extends Command
                     }
 
                     // Get lowestPrice from provided response
-                    $lowestPrice = $this->extractLowestPrice($response->body());
+                    $lowestPrice = $this->extractLowestPrice($response->body(), $offer->destination);
                     \Log::info($lowestPrice);
 
                     // if we get lowest price and it is less than offer price then we need to update our offer price accordingly
@@ -108,7 +113,7 @@ class GetLowestOfferPrice extends Command
         } // foreach end
     }
 
-    private function extractLowestPrice($htmlContent)
+    private function extractLowestPrice($htmlContent, $destination)
     {
         libxml_use_internal_errors(true);
         $dom = new DOMDocument();
@@ -142,13 +147,14 @@ class GetLowestOfferPrice extends Command
                         //         $price = $netPrice;
                         //     }
                         // }
-                        if (isset($offer['originRegionInfo']['price']['net']) && $offer['originRegionInfo']['region'] == "ES_MAIN") {
-                            $netPrice = floatval($offer['originRegionInfo']['price']['net']);
+                        // if (isset($offer['originRegionInfo']['price']['net']) && $offer['originRegionInfo']['region'] == "ES_MAIN") {
+                        //     $netPrice = floatval($offer['originRegionInfo']['price']['net']);
 
-                            if ($price === null || $netPrice < $price) {
-                                $price = $netPrice;
-                            }
-                        } else if(isset($offer['destinationRegionInfo']['price']['net']) && $offer['destinationRegionInfo']['region'] == "ES_MAIN") {
+                        //     if ($price === null || $netPrice < $price) {
+                        //         $price = $netPrice;
+                        //     }
+                        // }
+                        if(isset($offer['destinationRegionInfo']['price']['net']) && $offer['destinationRegionInfo']['region'] == $destination) {
                             $netPrice = floatval($offer['destinationRegionInfo']['price']['net']);
 
                             if ($price === null || $netPrice < $price) {
@@ -271,6 +277,7 @@ class GetLowestOfferPrice extends Command
         $r = PriceUpdateLog::create([
             'productName' => substr($offer->productName, 0, 255),
             'mmid' => $offer->mid,
+            'destination' => $offer->destination,
             'new_price' => $newPrice,
             'old_price' => $oldPrice,
             'type' => PriceUpdateLog::TYPE_SCHEDULE

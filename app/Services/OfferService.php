@@ -6,7 +6,9 @@ use App\Models\User;
 use App\Models\Offer;
 use App\Models\CustomOffer;
 use App\Models\PriceUpdateLog;
+use App\Mail\OfferPriceChanged;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use DOMDocument;
 use Exception;
 use Illuminate\Support\Facades\Storage;
@@ -17,6 +19,11 @@ class OfferService
 		\Log::info('offerSync');
 		$api_key = config('metro.scraper_key');
 		$offer = Offer::find($offerId);
+
+        if(!$offer){
+            $result = [ 'status' => false, 'message' => 'Offer not found'];
+            return $result;
+        }
 
 		$defaultPercentage = 10; // Default percentage if custom offer percentage is not available
             $interested = true;
@@ -37,7 +44,11 @@ class OfferService
 
                 if($offer->internal_status == 'active'){
                     // API Url to scrape website
-                    $url = 'http://api.scrape.do?token=' . $api_key . '&url=https://www.makro.es/marketplace/product/' . $productKey;
+                    if($offer->destination == 'PT_MAIN'){
+                        $url = 'http://api.scrape.do?token=' . $api_key . '&url=https://www.makro.pt/marketplace/product/' . $productKey;
+                    } else {
+                        $url = 'http://api.scrape.do?token=' . $api_key . '&url=https://www.makro.es/marketplace/product/' . $productKey;
+                    }
 
                     // call API and get response
                     $response = Http::get($url);
@@ -49,7 +60,7 @@ class OfferService
                     }
 
                     // Get lowestPrice from provided response
-                    $lowestPrice = $this->extractLowestPrice($response->body());
+                    $lowestPrice = $this->extractLowestPrice($response->body(), $offer->destination);
                     \Log::info($lowestPrice);
 
                     // if we get lowest price and it is less than offer price then we need to update our offer price accordingly
@@ -97,7 +108,7 @@ class OfferService
             \Log::info('handle end');
 	}
 
-	private function extractLowestPrice($htmlContent)
+	private function extractLowestPrice($htmlContent, $destination)
     {
         libxml_use_internal_errors(true);
         $dom = new DOMDocument();
@@ -123,13 +134,14 @@ class OfferService
                     is_array($jsonData['props']['pageProps']['product']['result']['offers'])) {
 
                     foreach ($jsonData['props']['pageProps']['product']['result']['offers'] as $offer) {
-                        if (isset($offer['originRegionInfo']['price']['net']) && $offer['originRegionInfo']['region'] == "ES_MAIN") {
-                            $netPrice = floatval($offer['originRegionInfo']['price']['net']);
+                        // if (isset($offer['originRegionInfo']['price']['net']) && $offer['originRegionInfo']['region'] == $destination) {
+                        //     $netPrice = floatval($offer['originRegionInfo']['price']['net']);
 
-                            if ($price === null || $netPrice < $price) {
-                                $price = $netPrice;
-                            }
-                        } else if(isset($offer['destinationRegionInfo']['price']['net']) && $offer['destinationRegionInfo']['region'] == "ES_MAIN") {
+                        //     if ($price === null || $netPrice < $price) {
+                        //         $price = $netPrice;
+                        //     }
+                        // }
+                        if(isset($offer['destinationRegionInfo']['price']['net']) && $offer['destinationRegionInfo']['region'] == $destination) {
                             $netPrice = floatval($offer['destinationRegionInfo']['price']['net']);
 
                             if ($price === null || $netPrice < $price) {
@@ -245,6 +257,7 @@ class OfferService
     	$r = PriceUpdateLog::create([
     		'productName' => $offer->productName,
     		'mmid' => $offer->mid,
+            'destination' => $offer->destination,
     		'new_price' => $newPrice,
     		'old_price' => $oldPrice,
     		'type' => PriceUpdateLog::TYPE_MANUAL

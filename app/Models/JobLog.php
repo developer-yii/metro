@@ -13,6 +13,7 @@ class JobLog extends Model
 
     protected $fillable = [
         'productKey',
-        'productName',        
+        'productName',
+        'destination'
     ];
 }
