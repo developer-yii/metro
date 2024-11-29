@@ -9,6 +9,12 @@ $(document).ready(function () {
                 // Add a custom method to allow decimal values
                 decimalWithTwoPlaces: true,
             },
+            sync_interval: {
+                required: true,
+                digits: true,  // Ensures whole numbers only
+                min: 1,
+                max: 100
+            }
         },
         messages: {
             percentage: {
@@ -18,6 +24,12 @@ $(document).ready(function () {
                 max: "Percentage must be less than or equal to 100.",
                 decimal: "Please enter a valid decimal value.",
             },
+            sync_interval: {
+                required: "Please enter sync interval",
+                digits: "Please enter a whole number",
+                min: "Minimum sync interval is 1 hour",
+                max: "Maximum sync interval is 100 hours"
+            }
         },
         errorPlacement: function (error, element) {
             error.insertAfter(element); // Display error message below the input field
@@ -72,6 +84,10 @@ $(document).ready(function () {
             {
                 data: "destination",
                 name: "destination",
+            },
+            {
+                data: "sync_interval",
+                name: "sync_interval",
             },
             {
                 data: "internal_status",

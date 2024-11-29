@@ -37,6 +37,7 @@
                                                 <th>Offer Price</th>
                                                 <th>Percentage</th>
                                                 <th>Destination</th>
+                                                <th>Sync Interval(hrs)</th>
                                                 <th>Status</th>
                                                 <th>Interested</th>
                                                 <th>Action</th>
@@ -78,6 +79,16 @@
                                 <label for="name" class="form-label">Percentage</label>
                                 <input type="text" class="form-control" name="percentage" id="percentage"
                                     placeholder="Enter percentage" value="{{ old('percentage') }}">
+                                <span class="text-danger error"></span>
+                            </div>
+                        </div>
+                        <div class="row g-2">
+                            <div class="mb-3 col-md-12">
+                                <label for="sync_interval" class="form-label">Sync Interval (hours)</label>
+                                <input type="number" class="form-control" name="sync_interval" id="sync_interval"
+                                    placeholder="Enter sync interval in hours"
+                                    min="1" max="1000"
+                                    value="{{ old('sync_interval', 3) }}">
                                 <span class="text-danger error"></span>
                             </div>
                         </div>

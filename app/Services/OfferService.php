@@ -29,7 +29,7 @@ class OfferService
             $interested = true;
             $percentage = $defaultPercentage;
 
-            if ($offer->customOffer) {
+            if ($offer->customOffer->exists) {
                 if ($offer->customOffer->percentage) {
                     $percentage = $offer->customOffer->percentage;
                 }

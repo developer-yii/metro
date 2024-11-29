@@ -36,6 +36,12 @@ class GetLowestOfferPrice extends Command
         $offers = Offer::all();
 
         foreach ($offers as $offer) {
+            // check if offer is yet to sync.
+            if (!$this->shouldSyncOffer($offer)) {
+                \Log::info("Skipping offer {$offer->productKey} - {$offer->destination} - Not yet time to sync");
+                continue;
+            }
+
             $defaultPercentage = 10; // Default percentage if custom offer percentage is not available
             $interested = true;
             $percentage = $defaultPercentage;
@@ -47,7 +53,7 @@ class GetLowestOfferPrice extends Command
                 'destination' => $offer->destination
             ]);
 
-            if ($offer->customOffer) {
+            if ($offer->customOffer->exists) {
                 if ($offer->customOffer->percentage) {
                     $percentage = $offer->customOffer->percentage;
                 }
@@ -102,6 +108,9 @@ class GetLowestOfferPrice extends Command
                             \Log::info('Lowest price is not significantly lower than offer price.');
                         }
                     }
+
+                    // After successful price check/update
+                    $offer->updateLastSyncedAt();
                 }else{
                     \Log::info('product internal status not active');
                 }
@@ -288,5 +297,21 @@ class GetLowestOfferPrice extends Command
         }
 
         return false;
+    }
+
+    private function shouldSyncOffer(Offer $offer): bool
+    {
+        // Thanks to withDefault(), this will never be null
+        $customOffer = $offer->customOffer;
+
+        // If never synced before or using default values, should sync
+        if (!$customOffer->exists || !$customOffer->last_synced_at) {
+            return true;
+        }
+
+        $hoursToWait = $customOffer->sync_interval ?? 3; // Fallback to 3 hours if somehow sync_interval is null
+        $nextSyncDue = $customOffer->last_synced_at->addHours($hoursToWait);
+
+        return now()->gte($nextSyncDue);
     }
 }

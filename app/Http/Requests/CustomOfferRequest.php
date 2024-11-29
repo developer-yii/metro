@@ -23,6 +23,7 @@ class CustomOfferRequest extends FormRequest
     {
         return [
             'percentage' => ['required', 'numeric', 'min:0', 'max:100'],
+            'sync_interval' => ['required', 'integer', 'min:1', 'max:100']
         ];
     }
 
@@ -33,7 +34,12 @@ class CustomOfferRequest extends FormRequest
             'percentage.numeric' => 'Percentage must be a number.',
             'percentage.min' => 'Percentage must be greater than or equal to 0.',
             'percentage.max' => 'Percentage must be less than or equal to 100.',
-            // Add more custom error messages as needed
+
+            // Sync interval messages
+            'sync_interval.required' => 'Please enter sync interval hours.',
+            'sync_interval.integer' => 'Sync interval must be a whole number.',
+            'sync_interval.min' => 'Sync interval must be at least 1 hour.',
+            'sync_interval.max' => 'Sync interval cannot exceed 100 hours.',
         ];
     }
 }

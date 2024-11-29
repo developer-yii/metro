@@ -32,7 +32,7 @@ class OfferController extends Controller
                         $join->on('offers.productKey', '=', 'custom_offers.productKey')
                             ->on('offers.destination', '=', 'custom_offers.destination');
                     })
-                    ->select('offers.*', 'custom_offers.percentage', 'custom_offers.is_interested_product') // Select required fields
+                    ->select('offers.*', 'custom_offers.percentage', 'custom_offers.is_interested_product','custom_offers.sync_interval') // Select required fields
                     ->get();
 
             return DataTables::of($offers)
@@ -41,9 +41,9 @@ class OfferController extends Controller
                     return $row->customOffer ? $row->customOffer->percentage : null;
                 })
                 ->editColumn('is_interested_product', function ($row) {
-                    if ($row->customOffer && $row->customOffer->is_interested_product == true) {
+                    if ($row->customOffer->exists && $row->customOffer->is_interested_product == true) {
                         return "<span class='badge bg-success text-white'>Interested</span>";
-                    } else if($row->customOffer && $row->customOffer->is_interested_product == false){
+                    } else if($row->customOffer->exists && $row->customOffer->is_interested_product == false){
                         return "<span class='badge bg-danger text-white'>Not Interested</span>";
                     }
                     else {
@@ -70,7 +70,7 @@ class OfferController extends Controller
         $result = ['status' => false, 'message' => ""];
         if ($request->ajax()) {
             $offer = Offer::find($request->id);
-            $customOffer = $offer->customOffer ?? null;
+            $customOffer = $offer->customOffer->exists ? $offer->customOffer : null;
 
             $result = ['status' => true, 'message' => 'Detail get successfully.', 'data' => $offer, 'customOffer' => $customOffer];
         }
@@ -92,6 +92,7 @@ class OfferController extends Controller
 
                 $customOffer->percentage = $request->percentage;
                 $customOffer->is_interested_product = $request->is_interested_product ? true : false;
+                $customOffer->sync_interval = $request->sync_interval; // Add sync interval
                 $customOffer->updated_by = Auth::id();
                 $customOffer->save();
 

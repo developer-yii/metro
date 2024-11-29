@@ -16,7 +16,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('app:get-offers')->dailyAt('23:55')->timezone('Europe/Madrid');
 
         // Schedule app:get-lowest-offer-price command every 3 hours without overlapping, starting from 2 AM to 9 PM
-        $schedule->command('app:get-update-lowest-offer-price')->timezone('Europe/Madrid')->withoutOverlapping()->everyThreeHours()->between('2:00', '21:00');
+        $schedule->command('app:get-update-lowest-offer-price')->timezone('Europe/Madrid')->withoutOverlapping()->everyThirtyMinutes()->between('2:00', '21:00');
 
         // Schedule joblogs:delete command every day at 01:00
         $schedule->command('joblogs:delete')->dailyAt('01:00')->timezone('Europe/Madrid');
