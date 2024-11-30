@@ -208,6 +208,21 @@ $(document).ready(function () {
 
                     if (
                         response.customOffer &&
+                        response.customOffer.sync_interval !== null &&
+                        response.customOffer.sync_interval !== undefined
+                    ){
+                        $("#offer-form")
+                            .find("#sync_interval")
+                            .val(response.customOffer.sync_interval);
+                    }else{
+                        $("#offer-form")
+                            .find("#sync_interval")
+                            .val('3');
+
+                    }
+
+                    if (
+                        response.customOffer &&
                         response.customOffer.is_interested_product !== null &&
                         response.customOffer.is_interested_product !== undefined
                     ) {
