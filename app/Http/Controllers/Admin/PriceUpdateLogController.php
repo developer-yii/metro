@@ -25,13 +25,15 @@ class PriceUpdateLogController extends Controller
     public function getData(Request $request)
     {
         if ($request->ajax()) {
-            $offers = PriceUpdateLog::orderBy('created_at', 'desc')->get();
+            $query = PriceUpdateLog::query()
+                ->orderBy('created_at', 'desc'); // Move orderBy here
 
-            return DataTables::of($offers)
+            return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('create_time_formatted', function ($row) {
-                    return Carbon::createFromFormat('Y-m-d H:i:s', $row->created_at)->format('d.m.Y H.i');
+                    return Carbon::parse($row->created_at)->format('d.m.Y H.i');
                 })
+                ->smart(true)
                 ->make(true);
         }
     }
