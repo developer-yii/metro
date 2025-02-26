@@ -50,6 +50,12 @@ class OfferController extends Controller
                         return "<span class='badge bg-success text-white'>Interested</span>";
                     }
                 })
+                ->addColumn('sync_interval', function ($row) {
+                    return $row->sync_interval;  // Uses the accessor in Offer model
+                })
+                ->addColumn('is_interested_product', function ($row) {
+                    return $row->is_interested_product;  // Uses the accessor in Offer model
+                })
                 ->addColumn('action', function ($row) {
 
                     $action = "";
