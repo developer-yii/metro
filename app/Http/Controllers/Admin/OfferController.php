@@ -32,8 +32,8 @@ class OfferController extends Controller
                         $join->on('offers.productKey', '=', 'custom_offers.productKey')
                             ->on('offers.destination', '=', 'custom_offers.destination');
                     })
-                    ->select('offers.*', 'custom_offers.percentage', 'custom_offers.is_interested_product','custom_offers.sync_interval') // Select required fields
-                    ->get();
+                    ->select('offers.*', 'custom_offers.percentage', 'custom_offers.is_interested_product','custom_offers.sync_interval'); // Select required fields
+
 
             return DataTables::of($offers)
                 ->addIndexColumn()
