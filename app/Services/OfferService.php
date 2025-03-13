@@ -141,11 +141,36 @@ class OfferService
                         //         $price = $netPrice;
                         //     }
                         // }
+                        // if(isset($offer['destinationRegionInfo']['price']['net']) && $offer['destinationRegionInfo']['region'] == $destination) {
+                        //     $netPrice = floatval($offer['destinationRegionInfo']['price']['net']);
+
+                        //     if ($price === null || $netPrice < $price) {
+                        //         $price = $netPrice;
+                        //     }
+                        // }
+
                         if(isset($offer['destinationRegionInfo']['price']['net']) && $offer['destinationRegionInfo']['region'] == $destination) {
                             $netPrice = floatval($offer['destinationRegionInfo']['price']['net']);
+                            $totalPrice = $netPrice; // Initialize totalPrice with netPrice
 
-                            if ($price === null || $netPrice < $price) {
-                                $price = $netPrice;
+                            if (isset($offer['shippingGroup']) && $offer['shippingGroup'] !== null) {
+                                if (isset($offer['shippingGroup']['shippingCosts'])) {
+                                    $shippingCosts = $offer['shippingGroup']['shippingCosts'];
+                                    if (isset($shippingCosts[$destination])) {
+                                        \Log::info($shippingCosts[$destination]);
+                                        foreach ($shippingCosts[$destination] as $shippingCost) {
+                                            if (isset($shippingCost['unitCost']['gross'])) {
+                                                $totalPrice += floatval($shippingCost['unitCost']['gross']);
+                                                \Log::info('$totalPrice: '.$totalPrice);
+                                                break; // Assuming only one unitCost per destination
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            if ($price === null || $totalPrice < $price) {
+                                $price = $totalPrice;
                             }
                         }
                     }
