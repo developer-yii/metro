@@ -4,94 +4,112 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Config;
 use App\Models\Offer;
 
 class GetOffers extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'app:get-offers';
+    protected $description = 'Get offers from Metro Makro site';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Get offers from metro makro site';
-
-    /**
-     * Execute the console command.
-     */
     public function handle()
     {
-        // Truncate offers table
+        Log::info('Starting offer fetch...');
+
         Offer::truncate();
 
-        // Get configuration values
-        $hmacSignature = config('metro.signature');
-        $clientKey = config('metro.client_id');
+        $clientKey = Config::get('metro.client_id');
+        $secretKey = Config::get('metro.signature');
 
-        // Build API URL
+        if (!$clientKey || !$secretKey) {
+            Log::error('Metro API credentials not configured.');
+            return Command::FAILURE;
+        }
+
         $host = 'https://app-seller-inventory.prod.de.metro-marketplace.cloud/openapi/v2/offers';
-        $limit = 2000;
+        $limit = 1000;
         $offset = 0;
         $sort = 'DESC';
-        $url = $host . '?limit=' . $limit . '&offset=' . $offset . '&sort%5BcreatedAt%5D=' . $sort;
+        $status = 'active';
 
-        // Generate HMAC signature
-        $timestamp = time();
-        $message = "GET\n$url\n\n$timestamp";
-        $hmacSignature = hash_hmac('sha256', $message, $hmacSignature);
+        $allOffers = [];
+        $hasMore = true;
 
-        // Make API request
-        $response = Http::withHeaders([
-            'X-Client-Id' => $clientKey,
-            'X-Timestamp' => $timestamp, // timestamp
-            'X-Signature' => $hmacSignature,  // signature
-            'Accept' => 'application/json'
-        ])->get($url);
+        while ($hasMore) {
+            $queryParams = http_build_query([
+                'limit' => $limit,
+                'offset' => $offset,
+                'sort[createdAt]' => $sort,
+                'filter[status]' => $status
+            ]);
 
-        // Check if API request was successful
-        if ($response->successful()) {
-            $offersData = $response->json();
+            $url = "{$host}?{$queryParams}";
+            $timestamp = time();
+            $message = "GET\n{$url}\n\n{$timestamp}";
+            $signature = hash_hmac('sha256', $message, $secretKey);
 
-            // Check if 'items' key exists in response
-            if (!isset($offersData['items'])) {
-                \Log::info('no items');
-                return 0;
+            $response = Http::withHeaders([
+                'X-Client-Id' => $clientKey,
+                'X-Timestamp' => $timestamp,
+                'X-Signature' => $signature,
+                'Accept' => 'application/json',
+            ])->get($url);
+
+            if (!$response->successful()) {
+                Log::error('API request failed', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'offset' => $offset,
+                ]);
+                return Command::FAILURE;
             }
 
-            // Log number of items
-            \Log::info('count: ' . count($offersData['items']));
+            $data = $response->json();
 
-            // Process and insert offers
-            foreach ($offersData['items'] as $offer) {
+            if (empty($data['items'])) {
+                Log::warning("No items found at offset: $offset");
+                break;
+            }
 
+            $total = $data['totalCount'] ?? null;
+            Log::info("Fetched " . count($data['items']) . " offers at offset {$offset}" . ($total ? " of total $total" : ""));
+
+            $offersToInsert = [];
+
+            foreach ($data['items'] as $offer) {
                 // Remove the 'businessModel' element as it is not coming with value compatible with post data; coming with numeric need to send string like 'B2B/B2C'
                 unset($offer['businessModel']);
 
-                // Create the Offer record
-                Offer::create([
+                $offersToInsert[] = [
                     'productKey' => $offer['productKey'],
                     'offer_price' => $offer['netPrice']['amount'],
-                    'productName' => substr($offer['productName'], 0, 255),
-                    'mid' => $offer['mid'],
-                    'sku' => $offer['sku'],
-                    'destination' => $offer['destination'],
+                    'productName' => substr($offer['productName'] ?? '', 0, 255),
+                    'mid' => $offer['mid'] ?? '',
+                    'sku' => $offer['sku'] ?? '',
+                    'destination' => $offer['destination'] ?? '',
                     'quantity' => $offer['quantity'],
-                    'internal_status' => $offer['offerStatus']['internalStatus'],
-                    'offer_json' => json_encode($offer), // Store modified offer as JSON
-                ]);
+                    'internal_status' => $offer['offerStatus']['internalStatus'] ?? '',
+                    'offer_json' => json_encode($offer),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
             }
 
-            \Log::info('Offers retrieval and processing successful.');
-        } else {
-            \Log::error('API request failed with status code: ' . $response->status());
+            // Insert in chunks for performance
+            $chunks = array_chunk($offersToInsert, 1000);
+            foreach ($chunks as $chunk) {
+                Offer::insert($chunk);
+            }
+
+            $offset += $limit;
+            if ($total !== null && $offset >= $total) {
+                $hasMore = false;
+            }
         }
 
-        return 0;
+        Log::info('Offers fetched and stored successfully.');
+
+        return Command::SUCCESS;
     }
 }
